@@ -1,0 +1,24 @@
+- name: Instalar k3s server
+  ansible.builtin.shell: >
+    curl -sfL https://get.k3s.io |
+    INSTALL_K3S_EXEC="server --tls-san {{ k3s_server_ip }}" sh -
+  args:
+    creates: /usr/local/bin/k3s
+
+- name: Asegurar que el servicio arranca y se habilita
+  ansible.builtin.service:
+    name: k3s
+    state: started
+    enabled: true
+
+- name: Esperar a que la API escuche en el 6443
+  ansible.builtin.wait_for:
+    host: "{{ k3s_server_ip }}"
+    port: 6443
+    timeout: 180
+
+- name: Leer el token del cluster
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: k3s_token
+  no_log: true

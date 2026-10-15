@@ -1,0 +1,13 @@
+- name: Instalar el control plane
+  hosts: k3s_servers
+  become: true
+  roles:
+    - k3s_server
+
+- name: Unir los workers
+  hosts: k3s_agents
+  become: true
+  vars:
+    k3s_node_token: "{{ hostvars['k3s-cp1'].k3s_token.content | b64decode | trim }}"
+  roles:
+    - k3s_agent
