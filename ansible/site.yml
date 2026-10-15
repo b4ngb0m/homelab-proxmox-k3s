@@ -1,0 +1,5 @@
+- name: Preparar nodos k3s
+  hosts: k3s
+  become: true
+  roles:
+    - common
